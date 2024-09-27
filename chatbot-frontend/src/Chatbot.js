@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const Chatbot = () => {
     const [question, setQuestion] = useState('');
-    const [response, setResponse] = useState('');
+    const [response, setResponse] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,7 +31,11 @@ const Chatbot = () => {
             {response && (
                 <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc' }}>
                     <h2>Response:</h2>
-                    <p>{response}</p>
+                    {response.answers && response.answers.length > 0 ? (
+                        <p>{response.answers[0].answer}</p>
+                    ) : (
+                        <p>No answer found.</p>
+                    )}
                 </div>
             )}
         </div>
