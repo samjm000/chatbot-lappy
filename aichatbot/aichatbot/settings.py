@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'chat',
     'corsheaders',
+    'haystack',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
+

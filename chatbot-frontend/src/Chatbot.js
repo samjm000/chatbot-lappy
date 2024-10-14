@@ -9,6 +9,7 @@ const Chatbot = () => {
         e.preventDefault();
         try {
             const res = await axios.post('http://127.0.0.1:8000/api/chat/', { question });
+            console.log(res.data);  // Log the response object
             setResponse(res.data);
         } catch (error) {
             console.error(error);
@@ -17,7 +18,7 @@ const Chatbot = () => {
 
     return (
         <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-            <h1>AI Chatbot</h1>
+            <h1>The Breast Cancer Bot</h1>
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
