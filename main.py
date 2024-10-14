@@ -1,28 +1,24 @@
 ## Main.py - test case for Neoadjuvant HR +'ve , HER 2 -ve patient - EC-D
-## start code f
 
-##Imports
+## Imports
 import os
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-model_name = "meta-llama/Llama-3.1-8B"
-model = AutoModelForCausalLM.from_pretrained(model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# Set up document store
 from haystack.document_stores import FAISSDocumentStore
-
-document_store = FAISSDocumentStore(faiss_index_factory_str="Flat")
-
-from haystack.nodes import Seq2SeqGenerator
-
-# Set up generator
-generator = Seq2SeqGenerator(model_name="meta-llama/Llama-3.1-8B")
-
-# Add PDF documents to Document Store
 from haystack.utils import convert_files_to_docs
 from haystack.nodes import DensePassageRetriever, PDFToTextConverter
+from haystack.pipelines import DocumentSearchPipeline
+from haystack_integrations.components.generators.llama_cpp import LlamaCppChatGenerator
 
+# Model setup with LlamaCppChatGenerator
+generator = LlamaCppChatGenerator(
+    model="/LLM/Meta-Llama-3.1-8B-Instruct-Q4_K_M-take2.gguf",
+    n_ctx=512,
+    n_batch=128,
+    model_kwargs={"n_gpu_layers": -1},
+    generation_kwargs={"max_tokens": 128, "temperature": 0.9},
+)
+
+# Set up document store
+document_store = FAISSDocumentStore(faiss_index_factory_str="Flat")
 
 # Initialize PDF converter
 pdf_converter = PDFToTextConverter(remove_numeric_tables=True, valid_languages=["en"])
@@ -41,24 +37,20 @@ for filename in os.listdir(pdf_dir):
 # Write documents to the document store
 document_store.write_documents(documents)
 
-# Set up retreiver
-from haystack.nodes import DensePassageRetriever
-
+# Set up retriever
 retriever = DensePassageRetriever(
     document_store=document_store,
     query_embedding_model="facebook/dpr-question_encoder-single-nq-base",
     passage_embedding_model="facebook/dpr-ctx_encoder-single-nq-base",
 )
 
-# update embeddings
+# Update embeddings
 document_store.update_embeddings(retriever)
 
-from haystack.pipelines import DocumentSearchPipeline
-
-# initialize search pipeline
+# Initialize search pipeline
 pipeline = DocumentSearchPipeline(retriever)
 
-# test setup
+# Test setup
 query = "What are the side effects of paclitaxel?"
 result = pipeline.run(query=query, params={"Retriever": {"top_k": 10}})
 
